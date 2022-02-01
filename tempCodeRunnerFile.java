@@ -1,0 +1,1 @@
+gameFrame.add(displayMap);
