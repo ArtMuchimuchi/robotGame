@@ -13,22 +13,25 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-public class MainGame extends JPanel implements KeyListener{
+public class MainGame extends JFrame implements KeyListener{
     
     static final int LEFT = 37;
     static final int UP = 38;
     static final int RIGHT = 39;
     static final int DOWN = 40;
 
-    static final int windowsWidth = 800;
-    static final int windowsHeight = 600;
+    static final int windowsWidth = 570;
+    static final int windowsHeight = 540;
 
-    GameFrame gameFrame;
+    JFrame gameWindow;
     Display displayMap;
     Player player;
+    Map map = new Map();
+
+    static public int playerPositionX = 0;
+    static public int playerPositionY = 0;
 
     MainGame () {
-        gameFrame = new GameFrame(windowsWidth, windowsHeight);
 
         JLabel objective = new JLabel();
         objective.setText("Find the battery!");
@@ -39,11 +42,20 @@ public class MainGame extends JPanel implements KeyListener{
         objective.setHorizontalAlignment(JLabel.CENTER);
 
         displayMap = new Display();
-        player = new Player();
+        player = new Player(this);
 
-        gameFrame.add(objective);
-        // gameFrame.add(displayMap);
-        gameFrame.add(player);
+        this.add(objective);
+        this.add(displayMap);
+        this.add(player);
+
+        this.setTitle("Robot Game");
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setResizable(false);
+        this.setSize(windowsWidth,windowsHeight);
+        this.setLayout(null);
+        this.setLocationRelativeTo(null);
+        this.setVisible(true);
+        this.getContentPane().setBackground(Color.BLACK);
         this.addKeyListener(this);
     
     }
@@ -54,13 +66,17 @@ public class MainGame extends JPanel implements KeyListener{
 
     public void keyPressed (KeyEvent e) {
         switch(e.getKeyCode()) {
-            case LEFT: 
+            case LEFT: player.moveLeft();
+            displayMap.repaint();
             break;
-            case UP: 
+            case UP: player.moveUp();
+            displayMap.repaint();
             break;
-            case RIGHT: 
+            case RIGHT: player.moveRight();
+            displayMap.repaint();
             break;
-            case DOWN: 
+            case DOWN: player.moveDown();
+            displayMap.repaint();
             break;
         }
     }
@@ -69,12 +85,4 @@ public class MainGame extends JPanel implements KeyListener{
 
     }
 
-    public void paintComponent (Graphics g) {
-        super.paintComponent(g);
-
-        Graphics2D g2 = (Graphics2D)g;
-
-        player.paint(g2);
-        
-    }
 }

@@ -1,4 +1,5 @@
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
@@ -12,22 +13,22 @@ public class Display extends JPanel {
 
     public Display () {
         this.setBounds(30, 80, 500, 400);
-        this.setBackground(Color.white);
+        this.setBackground(Color.gray);
         this.setDoubleBuffered(true);
     }
 
-    public void generateMap (Block inputMap[][]) {
-        for(int i=0;i<inputMap.length;i++) {
-            for(int j=0;j<inputMap[0].length;j++) {
-                System.out.println("["+i+"]["+j+"] = "+inputMap[i][j].getBlockValue());
-            }
+    public void setColor (int blockValue, Graphics2D g2) {
+        if(blockValue == 1) {
+            Color grass = new Color(53, 154, 46);
+            g2.setColor(grass);
         }
-
-    }
-
-    public void createColor (Block inputBlock) {
-        if(inputBlock.getBlockValue()==0) {
-
+        else if(blockValue == 2) {
+            Color bomb = new Color(90, 67, 23);
+            g2.setColor(bomb);
+        }
+        else if(blockValue == 3) {
+            Color battery = new Color(252, 252, 18);
+            g2.setColor(battery);
         }
     }
 
@@ -35,12 +36,28 @@ public class Display extends JPanel {
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D)g;
-        
-        g2.setColor(Color.pink);
-        g2.fillRect(0, 0, 500, 400);
-        g2.dispose();
 
         
+
+        for(int i=0 ;i<maxBlockX;i++) {
+            for(int j=0;j<maxBlockY;j++) {
+
+                int startDisplayX = MainGame.playerPositionX - 12;
+                int startDisplayY = MainGame.playerPositionY - 9;
+
+                if((startDisplayX + i >= 0 && startDisplayX + i < 100)&&(startDisplayY + j >= 0 && startDisplayY + j < 80)) {
+                    setColor(Map.map[i+startDisplayX][j+startDisplayY], g2);
+                    g2.fillRect(i * blockSize,j * blockSize, blockSize, blockSize);
+                }
+            }
+        }
+
+        g2.setColor(Color.WHITE);
+        g2.setFont(new Font("Courier New", Font.BOLD, 24));
+        g2.drawString("X:"+MainGame.playerPositionX+" Y:"+MainGame.playerPositionY
+        , 5, 20*20 - 5);
+
+        g2.dispose();
     }
 
 }
