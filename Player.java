@@ -13,9 +13,15 @@ public class Player extends JPanel {
     
     public int displayPositionX = 30;
     public int displayPositionY = 80;
+    public int distancePlayerFromDisplayX = 12;
+    public int distancePlayerFromDisplayY = 9;
     public int playerPositionX = 0;
     public int playerPositionY = 0;
-    public int playerSize = 20;
+    public int blockSize = 20;
+    public int minX = 0;
+    public int maxX = 99;
+    public int minY = 0;
+    public int maxY = 79;
     public BufferedImage direction;
     public MainGame game;
 
@@ -25,10 +31,11 @@ public class Player extends JPanel {
         this.game = inputMainGame;
         getImage();
         randomSpawn();
-        this.setBounds(displayPositionX + playerSize * 12
-        , displayPositionY + playerSize * 9
-        , playerSize, playerSize);
-        this.setBackground(Color.red);
+        this.setBounds(displayPositionX + blockSize * distancePlayerFromDisplayX
+        , displayPositionY + blockSize * distancePlayerFromDisplayY
+        , blockSize, blockSize);
+        Color grass = new Color(53, 154, 46);
+        this.setBackground(grass);
         direction = tankDown;
     }
 
@@ -65,7 +72,7 @@ public class Player extends JPanel {
             direction = tankUp;
         }
         else {
-            if(playerPositionY > 0) {
+            if(playerPositionY > minY) {
                 playerPositionY--;
                 game.playerPositionY = playerPositionY;
             }
@@ -77,7 +84,7 @@ public class Player extends JPanel {
             direction = tankDown;
         }
         else {
-            if(playerPositionY < 79) {
+            if(playerPositionY < maxY) {
                 playerPositionY ++;
                 game.playerPositionY = playerPositionY;
             }
@@ -89,7 +96,7 @@ public class Player extends JPanel {
             direction = tankLeft;
         }
         else {
-            if(playerPositionX > 0) {
+            if(playerPositionX > minX) {
                 playerPositionX --;
                 game.playerPositionX = playerPositionX;
             }
@@ -101,7 +108,7 @@ public class Player extends JPanel {
             direction = tankRight;
         }
         else {
-            if(playerPositionX < 99) {
+            if(playerPositionX < maxX) {
                 playerPositionX ++;
                 game.playerPositionX = playerPositionX;
             }
@@ -109,11 +116,11 @@ public class Player extends JPanel {
     }
 
     public void checkOnBlock () {
-        if(Map.map[playerPositionX][playerPositionY]==2) {
+        if(Map.map[playerPositionX][playerPositionY]==Map.bombBlock) {
             Result result = new Result(false);
             game.dispose();
         }
-        else if(Map.map[playerPositionX][playerPositionY]==3) {
+        else if(Map.map[playerPositionX][playerPositionY]==Map.batteryBlock) {
             Result result = new Result(true);
             game.dispose();
         }
@@ -123,7 +130,7 @@ public class Player extends JPanel {
 
         Graphics2D g2 = (Graphics2D)g;
 
-        g2.drawImage(direction, 0, 0, playerSize, playerSize, null);
+        g2.drawImage(direction, 0, 0, blockSize, blockSize, null);
         g2.dispose();
         checkOnBlock();
         repaint();

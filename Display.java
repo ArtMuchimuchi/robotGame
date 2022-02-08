@@ -18,15 +18,15 @@ public class Display extends JPanel {
     }
 
     public void setColor (int blockValue, Graphics2D g2) {
-        if(blockValue == 1) {
+        if(blockValue == Map.grassBlock) {
             Color grass = new Color(53, 154, 46);
             g2.setColor(grass);
         }
-        else if(blockValue == 2) {
+        else if(blockValue == Map.bombBlock) {
             Color bomb = new Color(90, 67, 23);
             g2.setColor(bomb);
         }
-        else if(blockValue == 3) {
+        else if(blockValue == Map.batteryBlock) {
             Color battery = new Color(252, 252, 18);
             g2.setColor(battery);
         }
