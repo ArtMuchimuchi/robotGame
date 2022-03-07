@@ -1,42 +1,55 @@
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
+// import java.awt.Color;
+// import java.awt.Graphics;
+// import java.awt.Graphics2D;
+// import java.awt.image.BufferedImage;
+// import java.io.IOException;
 
-import javax.imageio.ImageIO;
-import javax.swing.JPanel;
+// import javax.imageio.ImageIO;
+// import javax.swing.JPanel;
 
 import java.util.Random;
 
-public class Player extends JPanel {
+public class Player {
     
-    public int displayPositionX = 30;
-    public int displayPositionY = 80;
-    public int distancePlayerFromDisplayX = 12;
-    public int distancePlayerFromDisplayY = 9;
+    final public static int UP = 11;
+    final public static int LEFT = 12;
+    final public static int RIGHT = 13;
+    final public static int DOWN = 14;
+
+    final int minMapX = 0;
+    final int maxMapX = 100;
+    final int minMapY = 0;
+    final int maxMapY = 80;
+    // public int displayPositionX = 30;
+    // public int displayPositionY = 80;
+    // public int distancePlayerFromDisplayX = 12;
+    // public int distancePlayerFromDisplayY = 9;
     public int playerPositionX = 0;
     public int playerPositionY = 0;
-    public int blockSize = 20;
-    public int minX = 0;
-    public int maxX = 99;
-    public int minY = 0;
-    public int maxY = 79;
-    public BufferedImage direction;
+    public int playerDirection = DOWN;
+    public int playerHealth;
+    // public int blockSize = 20;
+    // public int minX = 0;
+    // public int maxX = 99;
+    // public int minY = 0;
+    // public int maxY = 79;
+    // public BufferedImage direction;
     public MainGame game;
 
-    public BufferedImage tankUp, tankDown, tankLeft, tankRight;
+    // public BufferedImage tankUp, tankDown, tankLeft, tankRight;
 
-    Player (MainGame inputMainGame) {
-        this.game = inputMainGame;
-        getImage();
+    Player (MainGame currentGame) {
+        // this.game = inputMainGame;
+        // getImage();
         randomSpawn();
-        this.setBounds(displayPositionX + blockSize * distancePlayerFromDisplayX
-        , displayPositionY + blockSize * distancePlayerFromDisplayY
-        , blockSize, blockSize);
-        Color grass = new Color(53, 154, 46);
-        this.setBackground(grass);
-        direction = tankDown;
+        // this.setBounds(displayPositionX + blockSize * distancePlayerFromDisplayX
+        // , displayPositionY + blockSize * distancePlayerFromDisplayY
+        // , blockSize, blockSize);
+        // Color grass = new Color(53, 154, 46);
+        // this.setBackground(grass);
+        // direction = tankDown;
+        this.playerHealth = 100;
+        this.game = currentGame;
     }
 
     public void randomSpawn () {
@@ -49,90 +62,222 @@ public class Player extends JPanel {
             if(Map.map[x][y]==1) {
                 playerPositionX = x;
                 playerPositionY = y;
-                game.playerPositionX = playerPositionX;
-                game.playerPositionY = playerPositionY;
+                // game.playerPositionX = playerPositionX;
+                // game.playerPositionY = playerPositionY;
+                Map.map[x][y]=0;
                 spawned = true;
             }
         }
     }
 
-    public void getImage () {
-        try {
-            tankUp = ImageIO.read(getClass().getResourceAsStream("TankUp.png"));
-            tankDown = ImageIO.read(getClass().getResourceAsStream("TankDown.png"));
-            tankLeft = ImageIO.read(getClass().getResourceAsStream("TankLeft.png"));
-            tankRight = ImageIO.read(getClass().getResourceAsStream("TankRight.png"));
-        }catch(IOException e) {
-            e.printStackTrace();
-        }
-    }
+    // public void getImage () {
+    //     try {
+    //         tankUp = ImageIO.read(getClass().getResourceAsStream("TankUp.png"));
+    //         tankDown = ImageIO.read(getClass().getResourceAsStream("TankDown.png"));
+    //         tankLeft = ImageIO.read(getClass().getResourceAsStream("TankLeft.png"));
+    //         tankRight = ImageIO.read(getClass().getResourceAsStream("TankRight.png"));
+    //     }catch(IOException e) {
+    //         e.printStackTrace();
+    //     }
+    // }
 
     public void moveUp () {
-        if(direction != tankUp) {
-            direction = tankUp;
+        if(playerDirection != UP) {
+            playerDirection = UP;
         }
         else {
-            if(playerPositionY > minY) {
+            if(playerPositionY > minMapY) {
                 playerPositionY--;
-                game.playerPositionY = playerPositionY;
+                checkOnBlock();
+                Map.map[playerPositionX][playerPositionY] = 0;
+                Map.map[playerPositionX][playerPositionY + 1] = Map.grassBlock;
             }
         }
     }
 
     public void moveDown () {
-        if(direction != tankDown) {
-            direction = tankDown;
+        if(playerDirection != DOWN) {
+            playerDirection = DOWN;
         }
         else {
-            if(playerPositionY < maxY) {
-                playerPositionY ++;
-                game.playerPositionY = playerPositionY;
+            if(playerPositionY < maxMapY - 1) {
+                playerPositionY++;
+                checkOnBlock();
+                Map.map[playerPositionX][playerPositionY] = 0;
+                Map.map[playerPositionX][playerPositionY - 1] = Map.grassBlock;
             }
         }
     }
 
     public void moveLeft () {
-        if(direction != tankLeft) {
-            direction = tankLeft;
+        if(playerDirection != LEFT) {
+            playerDirection = LEFT;
         }
         else {
-            if(playerPositionX > minX) {
+            if(playerPositionX > minMapX) {
                 playerPositionX --;
-                game.playerPositionX = playerPositionX;
+                checkOnBlock();
+                Map.map[playerPositionX][playerPositionY] = 0;
+                Map.map[playerPositionX + 1][playerPositionY] = Map.grassBlock;
             }
         }
     }
 
     public void moveRight () {
-        if(direction != tankRight) {
-            direction = tankRight;
+        if(playerDirection != RIGHT) {
+            playerDirection = RIGHT;
         }
         else {
-            if(playerPositionX < maxX) {
-                playerPositionX ++;
-                game.playerPositionX = playerPositionX;
+            if(playerPositionX < maxMapX - 1) {
+                playerPositionX++;
+                checkOnBlock();
+                Map.map[playerPositionX][playerPositionY] = 0;
+                Map.map[playerPositionX - 1][playerPositionY] = Map.grassBlock;
             }
+        }
+    }
+
+    public void shooting () {
+        if(!((playerPositionX == minMapX && playerDirection == Player.LEFT)
+        ||(playerPositionX == maxMapX - 1 && playerDirection == Player.RIGHT)
+        ||(playerPositionY == minMapY && playerDirection == Player.UP)
+        ||(playerPositionY == maxMapY - 1 && playerDirection == Player.DOWN))) {
+            Thread bullet = new Thread(new Bullet(playerPositionX, playerPositionY, playerDirection));
+            bullet.start();
         }
     }
 
     public void checkOnBlock () {
         if(Map.map[playerPositionX][playerPositionY]==Map.bombBlock) {
-            Result result = new Result(false);
-            game.dispose();
+            Map.destroyBomb(playerPositionX, playerPositionY);
+            this.playerHealth = this.playerHealth - 5;
         }
         else if(Map.map[playerPositionX][playerPositionY]==Map.batteryBlock) {
+            game.running = false;
             Result result = new Result(true);
             game.dispose();
         }
     }    
-    public void paintComponent (Graphics g) {
-        super.paintComponent(g);
 
-        Graphics2D g2 = (Graphics2D)g;
-
-        g2.drawImage(direction, 0, 0, blockSize, blockSize, null);
-        g2.dispose();
-        checkOnBlock();
-        repaint();
+    public void checkHealth () {
+        if(this.playerHealth == 0) {
+            game.running = false;
+            Result result = new Result(false);
+            game.dispose();
+        }
     }
+    // public void paintComponent (Graphics g) {
+    //     super.paintComponent(g);
+
+    //     Graphics2D g2 = (Graphics2D)g;
+
+    //     g2.drawImage(direction, 0, 0, blockSize, blockSize, null);
+    //     g2.dispose();
+    //     checkOnBlock();
+    //     repaint();
+    // }
+}
+
+class Bullet implements Runnable {
+
+    private int bulletPositionX;
+    private int bulletPositionY;
+    private int bulletNextPositionX;
+    private int bulletNextPositionY;
+    private int bulletDirection;
+    public boolean exist;
+
+    Bullet (int x, int y, int direction) {
+        this.bulletPositionX = this.bulletNextPositionX = x;
+        this.bulletPositionY = this.bulletNextPositionY = y;
+        this.bulletDirection = direction;
+        this.exist = true;
+        setBullet();
+        firstCheck();
+    }
+
+    void setBullet () {
+        if(this.bulletDirection==Player.UP) {
+            // this.bulletPositionY--;
+            this.bulletNextPositionY--;
+        }
+        else if(this.bulletDirection==Player.DOWN) {
+            // this.bulletPositionY++;
+            this.bulletNextPositionY++;
+        }
+        else if(this.bulletDirection==Player.LEFT) {
+            // this.bulletPositionX--;
+            this.bulletNextPositionX--;
+        }
+        else if(this.bulletDirection==Player.RIGHT) {
+            // this.bulletPositionX++;
+            this.bulletNextPositionX++;
+        }
+    }
+
+    void firstCheck () {
+        if(Map.map[bulletNextPositionX][bulletNextPositionY]==Map.bombBlock) {
+            this.exist = false;
+            Map.destroyBomb(bulletNextPositionX, bulletNextPositionY);
+        }
+    }
+
+    void bulletMove () {
+        Map.map[bulletNextPositionX][bulletNextPositionY] = Map.bullet;
+        Map.map[bulletPositionX][bulletPositionY] = Map.grassBlock;
+        bulletPositionX = bulletNextPositionX;
+        bulletPositionY = bulletNextPositionY;
+        if(this.bulletDirection==Player.UP) {
+            this.bulletNextPositionY--;
+        }
+        else if(this.bulletDirection==Player.DOWN) {
+            this.bulletNextPositionY++;
+        }
+        else if(this.bulletDirection==Player.LEFT) {
+            this.bulletNextPositionX--;
+        }
+        else if(this.bulletDirection==Player.RIGHT) {
+            this.bulletNextPositionX++;
+        }
+    }
+
+    void ricochetOnThing () {
+        boolean hitting = false;
+        if(bulletNextPositionX == -1 || bulletNextPositionX == 100
+        ||bulletNextPositionY == -1  || bulletNextPositionY == 80) {
+            hitting = true;
+        }
+        else if(Map.map[bulletNextPositionX][bulletNextPositionY] == Map.bombBlock) {
+            hitting = true;
+            Map.destroyBomb(bulletNextPositionX, bulletNextPositionY);
+        }
+        if(hitting) {
+            dissapear();
+        }
+        else {
+            bulletMove();
+            System.out.println("X:"+bulletPositionX+" Y:"+bulletPositionY);
+        }
+    }
+
+    void dissapear () {
+        this.exist = false;
+        if(Map.map[bulletPositionX][bulletPositionY] == Map.bullet) {
+            Map.map[bulletPositionX][bulletPositionY] = Map.grassBlock;
+        }
+    }
+
+    @Override
+    public void run() {
+        while(this.exist) {
+            ricochetOnThing();
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+
 }
