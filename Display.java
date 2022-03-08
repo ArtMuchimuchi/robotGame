@@ -51,6 +51,10 @@ public class Display extends JPanel {
             Color bullet = new Color(0, 255, 255);
             g2.setColor(bullet);
         }
+        else if(blockValue == Map.energyTank) {
+            Color energy = Color.RED;
+            g2.setColor(energy);
+        }
     }
 
     public BufferedImage convertDirectionToImage (int playerDirection) {
@@ -94,6 +98,16 @@ public class Display extends JPanel {
                 if((startDisplayX + i >= minMapX && startDisplayX + i < maxMapX)&&(startDisplayY + j >= minMapY && startDisplayY + j < maxMapY)) {
                     setColor(Map.map[i+startDisplayX][j+startDisplayY], g2);
                     g2.fillRect(i * blockSize + startX,j * blockSize + startY, blockSize, blockSize);
+                    if(Map.map[i+startDisplayX][j+startDisplayY]==Map.energyTank) {
+                        Color energy = new Color(0, 255, 255);
+                        g2.setColor(energy);
+                        g2.fillRect(i * blockSize + 2 + startX,j * blockSize + 2 + startY, blockSize - 4, blockSize - 4);
+                        g2.setColor(Color.black);
+                        g2.drawString(String.valueOf(Map.energyLocation[i+startDisplayX][j+startDisplayY].energy)
+                        , i * blockSize + startX + 4,j * blockSize + startY + 14);
+                    }
+
+
                     if(startDisplayX + i==player.playerPositionX && startDisplayY + j==player.playerPositionY) {
                         Color grass = new Color(53, 154, 46);
                         g2.setColor(grass);
@@ -130,6 +144,10 @@ public class Display extends JPanel {
         g2.setColor(Color.WHITE);
         g2.setFont(new Font("Courier New", Font.BOLD, 24));
         g2.drawString("H:"+player.playerHealth, 5 + startX, startY - 5);
+
+        g2.setColor(Color.WHITE);
+        g2.setFont(new Font("Courier New", Font.BOLD, 24));
+        g2.drawString("Player : "+player.playerName, 5 + startX, startY - 5 - 30);
 
         g2.dispose();
     }

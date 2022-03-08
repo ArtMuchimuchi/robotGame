@@ -49,6 +49,8 @@ public class StartFrame extends JFrame{
         okButton.setBackground(Color.black);
         okButton.addActionListener(e -> {
             MainGame game = new MainGame();
+            game.playerName = name.getText();
+            game.setPlayerName();
             this.dispose();
         });
 

@@ -31,9 +31,9 @@ public class MainGame extends JFrame implements KeyListener{
 
     public Thread runDisplay;
     public boolean running = true;
+    public String playerName;
 
     MainGame () {
-
         // JLabel objective = new JLabel();
         // objective.setText("Find the battery!");
         // objective.setForeground(Color.green);
@@ -61,6 +61,10 @@ public class MainGame extends JFrame implements KeyListener{
     
         runDisplay = new Thread(new DisplayRefresher(displayMap, this, player));
         runDisplay.start();
+    }
+
+    public void setPlayerName () {
+        player.playerName = this.playerName;
     }
     
     public void keyTyped (KeyEvent e) {

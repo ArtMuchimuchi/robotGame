@@ -35,6 +35,9 @@ public class Player {
     // public int maxY = 79;
     // public BufferedImage direction;
     public MainGame game;
+    public boolean threadControl = true;
+    public boolean healing = false;
+    public String playerName;
 
     // public BufferedImage tankUp, tankDown, tankLeft, tankRight;
 
@@ -50,6 +53,8 @@ public class Player {
         // direction = tankDown;
         this.playerHealth = 100;
         this.game = currentGame;
+        Thread healThread = new Thread(new Heal(this));
+        healThread.start();
     }
 
     public void randomSpawn () {
@@ -81,6 +86,13 @@ public class Player {
     //     }
     // }
 
+    public boolean ifEnergy (int x, int y) {
+        if(Map.map[x][y]==Map.energyTank) {
+            return true;
+        }
+        return false;
+    }
+
     public void moveUp () {
         if(playerDirection != UP) {
             playerDirection = UP;
@@ -89,8 +101,12 @@ public class Player {
             if(playerPositionY > minMapY) {
                 playerPositionY--;
                 checkOnBlock();
-                Map.map[playerPositionX][playerPositionY] = 0;
-                Map.map[playerPositionX][playerPositionY + 1] = Map.grassBlock;
+                if(!ifEnergy(playerPositionX, playerPositionY)) {
+                    Map.map[playerPositionX][playerPositionY] = 0;
+                }
+                if(!ifEnergy(playerPositionX, playerPositionY + 1)) {
+                    Map.map[playerPositionX][playerPositionY + 1] = Map.grassBlock;
+                }
             }
         }
     }
@@ -103,8 +119,12 @@ public class Player {
             if(playerPositionY < maxMapY - 1) {
                 playerPositionY++;
                 checkOnBlock();
-                Map.map[playerPositionX][playerPositionY] = 0;
-                Map.map[playerPositionX][playerPositionY - 1] = Map.grassBlock;
+                if(!ifEnergy(playerPositionX, playerPositionY)) {
+                    Map.map[playerPositionX][playerPositionY] = 0;
+                }
+                if(!ifEnergy(playerPositionX, playerPositionY - 1)) {
+                    Map.map[playerPositionX][playerPositionY - 1] = Map.grassBlock;
+                }
             }
         }
     }
@@ -117,8 +137,12 @@ public class Player {
             if(playerPositionX > minMapX) {
                 playerPositionX --;
                 checkOnBlock();
-                Map.map[playerPositionX][playerPositionY] = 0;
-                Map.map[playerPositionX + 1][playerPositionY] = Map.grassBlock;
+                if(!ifEnergy(playerPositionX, playerPositionY)) {
+                    Map.map[playerPositionX][playerPositionY] = 0;
+                }
+                if(!ifEnergy(playerPositionX + 1, playerPositionY)) {
+                    Map.map[playerPositionX + 1][playerPositionY] = Map.grassBlock;
+                }
             }
         }
     }
@@ -131,8 +155,12 @@ public class Player {
             if(playerPositionX < maxMapX - 1) {
                 playerPositionX++;
                 checkOnBlock();
-                Map.map[playerPositionX][playerPositionY] = 0;
-                Map.map[playerPositionX - 1][playerPositionY] = Map.grassBlock;
+                if(!ifEnergy(playerPositionX, playerPositionY)) {
+                    Map.map[playerPositionX][playerPositionY] = 0;
+                }
+                if(!ifEnergy(playerPositionX - 1, playerPositionY)) {
+                    Map.map[playerPositionX - 1][playerPositionY] = Map.grassBlock;
+                }
             }
         }
     }
@@ -142,7 +170,7 @@ public class Player {
         ||(playerPositionX == maxMapX - 1 && playerDirection == Player.RIGHT)
         ||(playerPositionY == minMapY && playerDirection == Player.UP)
         ||(playerPositionY == maxMapY - 1 && playerDirection == Player.DOWN))) {
-            Thread bullet = new Thread(new Bullet(playerPositionX, playerPositionY, playerDirection));
+            Thread bullet = new Thread(new Bullet(playerPositionX, playerPositionY, playerDirection, this));
             bullet.start();
         }
     }
@@ -154,14 +182,22 @@ public class Player {
         }
         else if(Map.map[playerPositionX][playerPositionY]==Map.batteryBlock) {
             game.running = false;
+            threadControl = false;
             Result result = new Result(true);
             game.dispose();
+        }
+        else if(Map.map[playerPositionX][playerPositionY]==Map.energyTank) {
+            healing = true;
+        }
+        else if(Map.map[playerPositionX][playerPositionY]!=Map.energyTank) {
+            healing = false;
         }
     }    
 
     public void checkHealth () {
         if(this.playerHealth == 0) {
             game.running = false;
+            threadControl = false;
             Result result = new Result(false);
             game.dispose();
         }
@@ -186,12 +222,14 @@ class Bullet implements Runnable {
     private int bulletNextPositionY;
     private int bulletDirection;
     public boolean exist;
+    public Player targetPlayer;
 
-    Bullet (int x, int y, int direction) {
+    Bullet (int x, int y, int direction, Player currentPlayer) {
         this.bulletPositionX = this.bulletNextPositionX = x;
         this.bulletPositionY = this.bulletNextPositionY = y;
         this.bulletDirection = direction;
         this.exist = true;
+        targetPlayer = currentPlayer;
         setBullet();
         firstCheck();
     }
@@ -251,12 +289,14 @@ class Bullet implements Runnable {
             hitting = true;
             Map.destroyBomb(bulletNextPositionX, bulletNextPositionY);
         }
+        else if(Map.map[bulletNextPositionX][bulletNextPositionY] == Map.energyTank) {
+            hitting = true;
+        }
         if(hitting) {
             dissapear();
         }
         else {
             bulletMove();
-            System.out.println("X:"+bulletPositionX+" Y:"+bulletPositionY);
         }
     }
 
@@ -269,10 +309,40 @@ class Bullet implements Runnable {
 
     @Override
     public void run() {
-        while(this.exist) {
+        while(this.exist&&targetPlayer.threadControl) {
             ricochetOnThing();
             try {
                 Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+
+}
+
+class Heal implements Runnable {
+
+    Player targetPlayer;
+
+    Heal (Player inputPlayer) {
+        targetPlayer = inputPlayer;
+    }
+
+    @Override
+    public void run() {
+        // TODO Auto-generated method stub
+        while(true) {
+            if(targetPlayer.healing) {
+                if(Map.energyLocation[targetPlayer.playerPositionX][targetPlayer.playerPositionY].drainEnergy()) {
+                    if(targetPlayer.playerHealth < 100) {
+                        targetPlayer.playerHealth = targetPlayer.playerHealth + 5;
+                    }
+                }
+            }
+            try {
+                Thread.sleep(800);
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
