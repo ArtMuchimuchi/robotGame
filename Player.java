@@ -262,7 +262,9 @@ class Bullet implements Runnable {
 
     void bulletMove () {
         Map.map[bulletNextPositionX][bulletNextPositionY] = Map.bullet;
-        Map.map[bulletPositionX][bulletPositionY] = Map.grassBlock;
+        if(Map.map[bulletPositionX][bulletPositionY] == Map.bullet) {
+            Map.map[bulletPositionX][bulletPositionY] = Map.grassBlock;
+        }
         bulletPositionX = bulletNextPositionX;
         bulletPositionY = bulletNextPositionY;
         if(this.bulletDirection==Player.UP) {
