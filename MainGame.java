@@ -32,8 +32,13 @@ public class MainGame extends JFrame implements KeyListener{
     public Thread runDisplay;
     public boolean running = true;
     public String playerName;
+    public Client client;
+    public Thread clientThread;
 
     MainGame () {
+        client = new Client();
+        clientThread = new Thread(client);
+        clientThread.start();
         // JLabel objective = new JLabel();
         // objective.setText("Find the battery!");
         // objective.setForeground(Color.green);
@@ -74,16 +79,20 @@ public class MainGame extends JFrame implements KeyListener{
     public void keyPressed (KeyEvent e) {
         switch(e.getKeyCode()) {
             case LEFT: player.moveLeft();
+            client.setMessage("Left");
             // displayMap.repaint();
             break;
             case UP: player.moveUp();
+            client.setMessage("Up");
             // displayMap.repaint();
             break;
             case RIGHT: player.moveRight();
+            client.setMessage("Right");
             // displayMap.repaint();
             break;
             case DOWN: player.moveDown();
             // displayMap.repaint();
+            client.setMessage("Down");
             break;
             case SPACEBAR: player.shooting();
             break;

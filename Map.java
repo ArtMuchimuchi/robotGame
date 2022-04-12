@@ -1,18 +1,19 @@
+import java.io.Serializable;
 import java.util.Random;
 
-public class Map {
+public class Map implements Serializable{
     
-    static final int maxWidth = 100;
-    static final int maxHeight = 80;
+    static public final int maxWidth = 100;
+    static public final int maxHeight = 80;
 
-    static final int bombRate = 3;
-    static final int numEnergyTank = 25;
+    static public final int bombRate = 3;
+    static public final int numEnergyTank = 25;
 
-    static final int grassBlock = 1;
-    static final int bombBlock = 2;
-    static final int batteryBlock = 3;
-    static final int bullet = 4;
-    static final int energyTank = 5;
+    static public final int grassBlock = 1;
+    static public final int bombBlock = 2;
+    static public final int batteryBlock = 3;
+    static public final int bullet = 4;
+    static public final int energyTank = 5;
 
     static public int map[][] = new int[maxWidth][maxHeight];
     static public EnergyTank energyLocation[][] = new EnergyTank[maxWidth][maxHeight];
@@ -20,7 +21,6 @@ public class Map {
     Map () {
         initiateMap();
         placeBomb(calculateNum(maxWidth, maxHeight, bombRate), maxWidth, maxHeight);
-        placeBattery(maxWidth, maxHeight);
         placeEnergyTank(numEnergyTank, maxWidth, maxHeight);
     }
 
@@ -79,23 +79,17 @@ public class Map {
         }
     }
 
-    public void placeBattery (int column, int row) {
-        Random rand = new Random();
-        int batteryPlaced = 0;
-        int i;
-        int j;
-        while(batteryPlaced < 1) {
-            i = rand.nextInt(column);
-            j = rand.nextInt(row);
-            if(map[i][j]==grassBlock) {
-                map[i][j]=batteryBlock;
-                batteryPlaced++;
-            }
-        }
-    }
-
     public int calculateNum (int width, int height, int rate) {
         return (width * height) * rate / 100 ;
+    }
+
+    public void printMap() {
+        int i,j;
+        for(i=0;i<maxWidth;i++) {
+            for(j=0;j<maxHeight;j++) {
+                System.out.println(map[i][j]);
+            }
+        }
     }
     
 }
