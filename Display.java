@@ -22,15 +22,20 @@ public class Display extends JPanel {
     final int minMapY = 0;
     final int maxMapY = 80;
 
-    public BufferedImage tankUp, tankDown, tankLeft, tankRight;
+    public BufferedImage tankUp[] = new BufferedImage[4];
+    public BufferedImage tankDown[] = new BufferedImage[4];
+    public BufferedImage tankLeft[] = new BufferedImage[4];
+    public BufferedImage tankRight[] = new BufferedImage[4];
 
     Player player;
+    MainGame game;
 
-    public Display (Player targetPlayer) {
+    public Display (Player targetPlayer, MainGame inputGame) {
         this.setBounds(0, 0, MainGame.windowsWidth, MainGame.windowsHeight);
         this.setBackground(Color.black);
         this.setDoubleBuffered(true);
         this.player = targetPlayer;
+        this.game = inputGame;
         getImage();
     }
 
@@ -47,38 +52,47 @@ public class Display extends JPanel {
             Color battery = new Color(252, 252, 18);
             g2.setColor(battery);
         }
-        else if(blockValue == Map.bullet) {
-            Color bullet = new Color(0, 255, 255);
-            g2.setColor(bullet);
-        }
         else if(blockValue == Map.energyTank) {
             Color energy = Color.RED;
             g2.setColor(energy);
         }
     }
 
-    public BufferedImage convertDirectionToImage (int playerDirection) {
+    public BufferedImage convertDirectionToImage (int playerDirection, int id) {
+        int pictureID = id%4;
         if(playerDirection == Player.UP) {
-            return tankUp;
+            return tankUp[pictureID];
         }
         else if(playerDirection == Player.LEFT) {
-            return tankLeft;
+            return tankLeft[pictureID];
         }
         else if(playerDirection == Player.RIGHT) {
-            return tankRight;
+            return tankRight[pictureID];
         }
         else if(playerDirection == Player.DOWN) {
-            return tankDown;
+            return tankDown[pictureID];
         }
-        return tankDown;
+        return tankDown[pictureID];
     }
 
     public void getImage () {
         try {
-            tankUp = ImageIO.read(getClass().getResourceAsStream("TankUp.png"));
-            tankDown = ImageIO.read(getClass().getResourceAsStream("TankDown.png"));
-            tankLeft = ImageIO.read(getClass().getResourceAsStream("TankLeft.png"));
-            tankRight = ImageIO.read(getClass().getResourceAsStream("TankRight.png"));
+            tankUp[0] = ImageIO.read(getClass().getResourceAsStream("/Pictures/player1/TankUp.png"));
+            tankDown[0] = ImageIO.read(getClass().getResourceAsStream("/Pictures/player1/TankDown.png"));
+            tankLeft[0] = ImageIO.read(getClass().getResourceAsStream("/Pictures/player1/TankLeft.png"));
+            tankRight[0] = ImageIO.read(getClass().getResourceAsStream("/Pictures/player1/TankRight.png"));
+            tankUp[1] = ImageIO.read(getClass().getResourceAsStream("/Pictures/player2/TankUp.png"));
+            tankDown[1] = ImageIO.read(getClass().getResourceAsStream("/Pictures/player2/TankDown.png"));
+            tankLeft[1] = ImageIO.read(getClass().getResourceAsStream("/Pictures/player2/TankLeft.png"));
+            tankRight[1] = ImageIO.read(getClass().getResourceAsStream("/Pictures/player2/TankRight.png"));
+            tankUp[2] = ImageIO.read(getClass().getResourceAsStream("/Pictures/player3/TankUp.png"));
+            tankDown[2] = ImageIO.read(getClass().getResourceAsStream("/Pictures/player3/TankDown.png"));
+            tankLeft[2] = ImageIO.read(getClass().getResourceAsStream("/Pictures/player3/TankLeft.png"));
+            tankRight[2] = ImageIO.read(getClass().getResourceAsStream("/Pictures/player3/TankRight.png"));
+            tankUp[3] = ImageIO.read(getClass().getResourceAsStream("/Pictures/player4/TankUp.png"));
+            tankDown[3] = ImageIO.read(getClass().getResourceAsStream("/Pictures/player4/TankDown.png"));
+            tankLeft[3] = ImageIO.read(getClass().getResourceAsStream("/Pictures/player4/TankLeft.png"));
+            tankRight[3] = ImageIO.read(getClass().getResourceAsStream("/Pictures/player4/TankRight.png"));
         }catch(IOException e) {
             e.printStackTrace();
         }
@@ -96,24 +110,26 @@ public class Display extends JPanel {
                 int startDisplayY = player.playerPositionY - 9;
 
                 if((startDisplayX + i >= minMapX && startDisplayX + i < maxMapX)&&(startDisplayY + j >= minMapY && startDisplayY + j < maxMapY)) {
-                    setColor(Map.map[i+startDisplayX][j+startDisplayY], g2);
+                    setColor(game.client.map.map[i+startDisplayX][j+startDisplayY], g2);
                     g2.fillRect(i * blockSize + startX,j * blockSize + startY, blockSize, blockSize);
-                    if(Map.map[i+startDisplayX][j+startDisplayY]==Map.energyTank) {
+                    if(game.client.map.map[i+startDisplayX][j+startDisplayY]==Map.energyTank) {
                         Color energy = new Color(0, 255, 255);
                         g2.setColor(energy);
                         g2.fillRect(i * blockSize + 2 + startX,j * blockSize + 2 + startY, blockSize - 4, blockSize - 4);
                         g2.setColor(Color.black);
-                        g2.drawString(String.valueOf(Map.energyLocation[i+startDisplayX][j+startDisplayY].energy)
+                        g2.drawString(String.valueOf(game.client.map.energyLocation[i+startDisplayX][j+startDisplayY].energy)
                         , i * blockSize + startX + 4,j * blockSize + startY + 14);
                     }
-
-
-                    if(startDisplayX + i==player.playerPositionX && startDisplayY + j==player.playerPositionY) {
-                        Color grass = new Color(53, 154, 46);
-                        g2.setColor(grass);
+                    if(game.client.map.bulletLocation[i+startDisplayX][j+startDisplayY]!= null) {
+                        Color bullet = new Color(0, 255, 255);
+                        g2.setColor(bullet);
                         g2.fillRect(i * blockSize + startX,j * blockSize + startY, blockSize, blockSize);
-                        g2.drawImage(convertDirectionToImage(player.playerDirection), i*blockSize + startX
-                        , j*blockSize + startY, blockSize, blockSize, null);
+                    }
+                    if(game.client.map.mapPlayerPosition[i+startDisplayX][j+startDisplayY]!=0) {
+                        g2.drawImage(convertDirectionToImage(game.client.map.mapPlayerPosition[i+startDisplayX][j+startDisplayY], 
+                        game.client.map.mapPlayerID[i+startDisplayX][j+startDisplayY]),
+                        i*blockSize + startX, j*blockSize + startY, blockSize, blockSize, null);
+                    
                     }
                 }
                 else {

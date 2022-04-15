@@ -10,6 +10,8 @@ class Client implements Runnable {
     public ObjectInputStream in;
     public Map map;
     public String message;
+    public PackagePlayerData player;
+    public int id;
 
     // driver code
     public Client () 
@@ -19,6 +21,8 @@ class Client implements Runnable {
             out = new ObjectOutputStream(socket.getOutputStream());
             in = new ObjectInputStream(socket.getInputStream());
             message = null;
+            map = new Map();
+            player = new PackagePlayerData();
         } catch (UnknownHostException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -34,9 +38,17 @@ class Client implements Runnable {
 
     @Override
     public void run() {
-        while(true) {
+        while(!player.done) {
             try {
-                map = (Map) in.readObject();
+                packMap packageMap = new packMap(map);
+                packageMap = (packMap) in.readObject();
+                map.map = packageMap.map;
+                map.mapPlayerPosition = packageMap.mapPlayerPosition;
+                map.mapPlayerID = packageMap.mapPlayerID;
+                map.energyLocation = packageMap.energyLocation;
+                map.bulletLocation = packageMap.bulletLocation;
+                player = (PackagePlayerData) in.readObject();
+                id = player.playerID;
                 MessagePack messagePack = new MessagePack();
                 if(message!=null) {
                     messagePack.setMessage(message);
